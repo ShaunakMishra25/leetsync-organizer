@@ -1,0 +1,37 @@
+name: Organize DSA Files
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  
+
+permissions:
+  contents: write  
+
+jobs:
+  organize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # Get all history for better merging
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"  
+
+      - name: Run organizer script
+        run: python organize.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase  # Prevent merge conflicts
+          git add .
+          git diff --staged --quiet || git commit -m "🤖 Auto-organized files into difficulty folders"
+          git push origin main
