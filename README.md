@@ -33,8 +33,6 @@ cd <your-leetcode-repo>
 
 ## ⚙️ Usage
 
-### 🔁 Basic Usage
-
 ```bash
 python organize.py
 ```
@@ -70,6 +68,8 @@ my-leetcode/
 ├── reverse-linked-list/
 ├── merge-intervals/
 ```
+<img width="1919" height="889" alt="Screenshot 2025-08-24 125018" src="https://github.com/user-attachments/assets/6f6ea083-d562-4a9e-861e-38facaedf543" />
+
 
 ### After
 
@@ -83,6 +83,7 @@ my-leetcode/
 ├── Hard/
 ├── Unknown/
 ```
+<img width="1919" height="868" alt="Screenshot 2025-08-24 125103" src="https://github.com/user-attachments/assets/00c82fb6-d988-4792-ae69-a25497b292ca" />
 
 ---
 
