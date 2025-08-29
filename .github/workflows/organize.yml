@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  
+  workflow_dispatch:
 
 permissions:
-  contents: write  
+  contents: write
 
 jobs:
   organize:
@@ -17,12 +17,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0  # Get all history for better merging
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.9"  
+          python-version: "3.9"
 
       - name: Run organizer script
         run: python organize.py
@@ -31,7 +31,15 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git pull --rebase  # Prevent merge conflicts
+
+          # Stage all changes
           git add .
+
+          # Commit only if there are changes
           git diff --staged --quiet || git commit -m "🤖 Auto-organized files into difficulty folders"
+
+          # Rebase with autostash to avoid unstaged changes error
+          git pull --rebase --autostash
+
+          # Push changes back to main
           git push origin main

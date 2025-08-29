@@ -29,14 +29,33 @@ def should_organize_folder(folder_name):
             folder_name not in DIFFICULTIES and
             folder_name != "Unknown")
 
-# Create difficulty folders
+def update_existing_folder(source_path, destination_path):
+    """Only overwrite code files in existing folder, don't move the folder itself"""
+    code_extensions = ('.py', '.java', '.cpp', '.c', '.js', '.ts', '.rb', '.go', '.rs')
+    
+    for item in os.listdir(source_path):
+        source_item = os.path.join(source_path, item)
+        dest_item = os.path.join(destination_path, item)
+        
+        if os.path.isfile(source_item):
+            if item.endswith(code_extensions) or item == 'README.md':
+                shutil.copy2(source_item, dest_item)
+                print(f"Updated file: {dest_item}")
+        elif os.path.isdir(source_item):
+            if os.path.exists(dest_item):
+                shutil.rmtree(dest_item)
+            shutil.copytree(source_item, dest_item)
+            print(f"Updated folder: {dest_item}/")
+    
+    shutil.rmtree(source_path)
+
+# --- MAIN SCRIPT ---
 for diff in DIFFICULTIES:
     os.makedirs(os.path.join(BASE_DIR, diff), exist_ok=True)
 os.makedirs("Unknown", exist_ok=True)
 
-# Organize all problem folders
 moved_count = 0
-skipped_count = 0
+updated_count = 0
 
 for item in os.listdir(BASE_DIR):
     if not should_organize_folder(item):
@@ -50,50 +69,22 @@ for item in os.listdir(BASE_DIR):
         target_path = os.path.join(target_dir, item)
         
         if os.path.exists(target_path):
-            # Folder already exists in destination - JUST UPDATE CODE FILES
-            print(f"Updating code files in {difficulty}/{item}")
+            print(f"Updating existing: {difficulty}/{item}")
             update_existing_folder(item_path, target_path)
-            skipped_count += 1
+            updated_count += 1
         else:
-            # New folder - move entirely
             shutil.move(item_path, target_path)
-            print(f"Moved {item} to {difficulty}/")
+            print(f"Moved: {item} → {difficulty}/")
             moved_count += 1
     else:
         target_path = os.path.join(BASE_DIR, "Unknown", item)
         if os.path.exists(target_path):
-            print(f"Updating code files in Unknown/{item}")
+            print(f"Updating existing: Unknown/{item}")
             update_existing_folder(item_path, target_path)
-            skipped_count += 1
+            updated_count += 1
         else:
             shutil.move(item_path, target_path)
-            print(f" Moved {item} to Unknown/")
+            print(f"Moved: {item} → Unknown/")
             moved_count += 1
 
-print(f"\nOrganization complete! New: {moved_count}, Updated: {skipped_count}")
-
-def update_existing_folder(source_path, destination_path):
-    """
-    Only overwrite code files in existing folder, don't move the folder itself
-    """
-    # Define which files to update (code files and README)
-    code_extensions = ('.py', '.java', '.cpp', '.c', '.js', '.ts', '.rb', '.go', '.rs')
-    
-    for item in os.listdir(source_path):
-        source_item = os.path.join(source_path, item)
-        dest_item = os.path.join(destination_path, item)
-        
-        if os.path.isfile(source_item):
-            # Always overwrite code files and README
-            if item.endswith(code_extensions) or item == 'README.md':
-                shutil.copy2(source_item, dest_item)
-                print(f" Updated {item}")
-        elif os.path.isdir(source_item):
-            # For subdirectories, copy recursively
-            if os.path.exists(dest_item):
-                shutil.rmtree(dest_item)
-            shutil.copytree(source_item, dest_item)
-            print(f" Updated {item}/")
-    
-    # Remove the source folder after copying
-    shutil.rmtree(source_path)
+print(f"\nOrganization complete! New: {moved_count}, Updated: {updated_count}")
